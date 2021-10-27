@@ -1,0 +1,8 @@
+global:
+  account: test
+  environment: test
+
+secrets:
+  SECRET_KEY: app-secret
+database:
+  enabled: false

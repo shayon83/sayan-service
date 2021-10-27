@@ -1,0 +1,5 @@
+[run]
+source = sayan_service/
+
+[xml]
+output = coverage.xml

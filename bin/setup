@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+
+SERVICE_MODULE='sayan_service'
+SERVICE_HOSTNAME='sayan-service'
+SERVICE_NETWORK='syapse'
+
+
+main() {
+  local prompt
+  prompt='This will set the environment up from scratch. '
+  prompt+='Are you sure? [y/n] '
+  read -r -p "$prompt"
+  [[ $REPLY = [Yy]* ]] || return
+
+  echo
+  read -r -p 'Do you want to replace current .env with .env.example as well? [y/n] '
+  echo
+  if [[ $REPLY = [Yy]* ]]
+  then
+    echo 'Copying .env.example to .env...'
+    cp .env.example .env
+  fi
+
+  echo "Creating external docker network '$SERVICE_NETWORK'..."
+  docker network inspect syapse &> /dev/null \
+    || docker network create "$SERVICE_NETWORK" > /dev/null
+
+  echo
+  echo 'Rebuilding containers...'
+  docker-compose down -v --remove-orphans
+  docker-compose up -d --build
+
+  printf 'Waiting for postgres to become available.'
+  until docker-compose exec -T postgres \
+    env PGCONNECT_TIMEOUT=2 psql -h localhost -U postgres -c 'SELECT 1;' > /dev/null 2>&1; do
+    printf .
+    sleep 1
+  done
+  echo
+
+  echo 'Creating a database for the application...'
+  docker-compose exec -T postgres dropdb --if-exists -U postgres "$SERVICE_MODULE"
+  docker-compose exec -T postgres createdb -U postgres "$SERVICE_MODULE"
+
+  echo 'Bootstrapping the application for development inside the docker container...'
+  docker-compose exec -T "$SERVICE_HOSTNAME" /srv/bin/bootstrap dev
+
+  echo 'Building documentation with Sphinx...'
+  bin/build-docs
+
+  bin/info
+}
+
+
+main "$@"
+
+# vim: ts=2 sw=2 sts=2 et

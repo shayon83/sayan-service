@@ -1,0 +1,10 @@
+#!/bin/sh
+
+main() {
+  chmod +x /srv/cc-test-reporter
+  /srv/cc-test-reporter before-build
+  py.test --cov-config=.coveragerc --cov=sayan_service --cov-report=xml
+  /srv/cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $?
+}
+
+main "$@"

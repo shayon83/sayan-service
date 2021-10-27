@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+##
+# A note on dependency management
+#
+# The Pipfile should only install the local package. Additional dependencies
+# should be added to the appropriate section in the setup.cfg file.
+#
+
+[packages]
+"e1839a8" = {path = ".", editable = true}
+
+[dev-packages]
+"e1839a8" = {path = ".", editable = true, extras = ["dev", "test"]}
+
+[requires]
+python_version = "3.9"

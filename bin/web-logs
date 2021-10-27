@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# Display logs, but only for the web server.
+# This command avoids a bug that ./bin/logs has: it doesn't use 'docker-compose',
+# and so avoids https://github.com/docker/compose/issues/5973
+
+main() {
+  docker container logs "$@" sayan-service
+}
+
+main "$@"

@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+
+SERVICE_HOSTNAME='sayan-service'
+
+
+main() {
+  local service_port
+  local pgweb_port
+
+  service_port=$(_exposed_port "$SERVICE_HOSTNAME" 5000)
+  metrics_port=$(_exposed_port "$SERVICE_HOSTNAME" 9100)
+  pgweb_port=$(_exposed_port pgweb 8081)
+  docs_port=$(_exposed_port docs 80)
+
+  echo
+  echo "Your services are exposed on:"
+  echo
+  echo "  * $SERVICE_HOSTNAME: http://localhost:$service_port/v1/ui/"
+  echo "  * $SERVICE_HOSTNAME documentation: http://localhost:$docs_port"
+  echo "  * $SERVICE_HOSTNAME metrics: http://localhost:$metrics_port/metrics"
+  echo "  * pgweb: http://localhost:$pgweb_port"
+  echo
+}
+
+
+_exposed_port() {
+  local service=$1
+  local internal_port=$2
+
+  docker-compose port "$service" "$internal_port" | cut -d':' -f2
+}
+
+
+main "$@"
+
+
+# vim: ts=2 sw=2 sts=2 et

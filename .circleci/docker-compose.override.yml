@@ -1,0 +1,19 @@
+version: "3.5"
+
+volumes:
+  sayan-service:
+
+services:
+  sayan-service:
+    build:
+      context: .
+      target: test
+    volumes:
+      - sayan-service:/srv
+    environment:
+      - "LOG_PRETTY=False"
+  docs:
+    volumes: []
+
+
+# vim: ts=2 sw=2 sts=2 et

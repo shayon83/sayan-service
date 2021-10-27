@@ -1,0 +1,14 @@
+_extends: syapse/.github # Inherit settings from https://github.com/syapse/.github/blob/master/.github/settings.yml
+repository:
+  description: A new service for doing things.
+  has_issues: true
+
+branches:
+  - name: master
+    protection:
+      required_status_checks:
+        contexts:
+          - "WIP"
+          - "ci/circleci: run-tests"
+          - "ci/circleci: build-prod"
+          - "ci/circleci: helm-build"

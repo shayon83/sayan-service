@@ -1,0 +1,23 @@
+##
+# Dependabot automatically creates pull requests to update dependencies.
+# https://docs.github.com/en/code-security/supply-chain-security/configuration-options-for-dependency-updates
+#
+version: 2
+registries:
+  ecr-docker:
+    type: docker-registry
+    url: https://141380700111.dkr.ecr.us-west-2.amazonaws.com
+    username: $\{\{secrets.ECR_AWS_ACCESS_KEY_ID\}\}
+    password: $\{\{secrets.ECR_AWS_SECRET_ACCESS_KEY\}\}
+
+updates:
+  - package-ecosystem: docker
+    directory: /
+    registries:
+      - ecr-docker
+    schedule:
+      interval: daily
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: daily

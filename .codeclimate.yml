@@ -1,0 +1,26 @@
+version: "2"
+
+plugins:
+  bandit:
+    enabled: true
+  duplication:
+    enabled: true
+  editorconfig:
+    enabled: true
+  fixme:
+    enabled: true
+  pep8:
+    enabled: true
+  radon:
+    enabled: true
+  shellcheck:
+    enabled: true
+  sonar-python:
+    enabled: true
+  structure:
+    enabled: true
+
+exclude_patterns:
+- "migrations/"
+- "bin/"
+- "helm/"

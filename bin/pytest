@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+
+main() {
+  bin/exec pytest \
+    --cov="sayan_service" \
+    "$@"
+}
+
+
+main "$@"
+
+# vim: ts=2 sw=2 sts=2 et

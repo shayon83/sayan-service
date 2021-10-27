@@ -1,0 +1,51 @@
+<!--
+What is this?
+===============================================================================
+
+This page is just a placeholder to let the developer know that they haven't yet
+built their Sphinx docs yet (and instruct them on doing so). In general, it's
+good practice to keep documentation artifacts out of version control so that
+they don't become stale when someone forgets to build them.
+
+This page will only appear if you haven't yet built your docs. Its extension is
+`.htm` instead of `.html` to allow it to be served by nginx (with no additional
+configuration) and excluded from .gitignore while still 
+allowing the built docs themselves to be gitignored. We're basically taking
+advantage of nginx's default index page priority.
+-->
+
+<!doctype html>
+<html>
+  <head>
+    <title>Uh oh!</title>
+    <style>
+      html, body { height: 100%; }
+      body { font: 1.5em Helvetica, sans-serif; color: #333; }
+
+      h1 { font-size: 50px; }
+      p { margin-bottom: 2em; line-height: 1.6; }
+
+      .flex-container { display: flex; align-items: center; }
+      .flex-block { max-width: 650px; margin-left: auto; margin-right: auto; }
+      .flex-container .flex-block:first-child { margin-top: auto; }
+      .flex-container .flex-block:last-child { margin-bottom: auto; }
+
+      .centered { text-align: center; }
+      .big-command { display: block; padding: 0.3em; background: #ddd; border: 1px solid #ccc; font-size: 2em; }
+    </style>
+  </head>
+
+  <body class="flex-container">
+    <article class="flex-block">
+      <h1 class="centered">Looks like you haven&rsquo;t built your docs yet.</h1>
+      <div>
+        <p class="centered">
+          Don&rsquo;t worry, it's really easy. In your terminal, make sure you&rsquo;re in the root of your project directory, then run:
+        </p>
+        <p class="centered">
+          <code class="centered big-command">bin/build-docs</code>
+        </p>
+      </div>
+    </article>
+  </body>
+</html>

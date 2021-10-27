@@ -1,0 +1,38 @@
+swagger: "2.0"
+
+info:
+  title: "sayan-service"
+  version: "1"
+
+basePath: /v1
+
+paths:
+  /health/alive:
+    get:
+      tags: [health]
+      operationId: sayan_service.api.v1.health.endpoints.get_alive
+      summary: Check if the service is alive and reachable.
+      responses:
+        200:
+          description: The service is both alive and reachable.
+        500:
+          description: The service is not alive and reachable.
+  /health/ready:
+    get:
+      tags: [health]
+      operationId: sayan_service.api.v1.health.endpoints.get_ready
+      summary: Check if the service is ready to serve traffic.
+      responses:
+        200:
+          description: The service is ready to serve traffic.
+        500:
+          description: The service is not ready to serve traffic.
+
+parameters:
+  uuid:
+    in: path
+    name: uuid
+    required: true
+    type: string
+    format: uuid
+    pattern: "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89aAbB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$"

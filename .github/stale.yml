@@ -1,0 +1,1 @@
+_extends: syapse/.github # Inherit settings from https://github.com/syapse/.github/blob/master/.github/stale.yml

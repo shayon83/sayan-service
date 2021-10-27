@@ -1,0 +1,46 @@
+#!/bin/sh
+
+
+main() {
+  for i in "$@"; do
+    bootstrap "$i"
+  done
+}
+
+
+bootstrap() {
+  action=$1
+  case $action in
+    prod)
+      (
+        cd /srv || exit
+
+        echo "Migrating the database to the latest schema..."
+        flask db upgrade
+
+        echo "Seeding the application..."
+        flask seed
+      )
+      ;;
+    dev)
+      (
+        cd /srv || exit
+
+        echo "Removing .pyc files..."
+        find . -name '*.pyc' -delete
+
+        echo "Migrating the database..."
+        flask db upgrade
+
+        echo "Seeding the application..."
+        flask seed
+      )
+      ;;
+  esac
+}
+
+
+main "$@"
+
+
+# vim: ts=2 sw=2 sts=2 et

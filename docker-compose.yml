@@ -1,0 +1,81 @@
+version: "3.5"
+
+volumes:
+  db:
+  localstack:
+
+services:
+  postgres:
+    image: postgres:9.6-alpine
+    container_name: sayan-service-postgres
+    restart: unless-stopped
+    volumes:
+      - db:/var/lib/postgresql/data
+    networks:
+      - syapse
+  sayan-service:
+    build:
+      context: .
+      target: dev
+    user: user
+    tty: true
+    container_name: sayan-service
+    restart: unless-stopped
+    volumes:
+      - .:/srv
+    env_file:
+      - .env
+    ports:
+        - "15650:5000"
+        - "42587:9100"
+    links:
+      - postgres:postgres
+      - localstack:kinesis
+    depends_on:
+      - postgres
+    networks:
+      - syapse
+  localstack:
+    container_name: sayan-service-localstack
+    restart: unless-stopped
+    image: localstack/localstack
+    volumes:
+      - localstack:/tmp/localstack
+    environment:
+      # Enabled services
+      - "SERVICES=kinesis:4568"
+
+      # Kinesis settings
+      - "KINESIS_ERROR_PROBABILITY=0.0"
+
+      # LocalStack settings
+      - "DEFAULT_REGION=us-west-2"
+      - "DATA_DIR=/tmp/localstack/data"
+      - "FORCE_NONINTERACTIVE=1"
+    networks:
+      - syapse
+  pgweb:
+    container_name: sayan-service-pgweb
+    restart: unless-stopped
+    image: sosedoff/pgweb
+    ports:
+      - "15651:8081"
+    links:
+      - postgres:postgres
+    environment:
+      - "DATABASE_URL=postgres://postgres@postgres:5432/sayan_service?sslmode=disable"
+    networks:
+      - syapse
+  docs:
+    container_name: sayan-service-docs
+    restart: unless-stopped
+    image: library/nginx:latest
+    volumes:
+      - ./docs/_build:/usr/share/nginx/html:ro
+    ports:
+      - "15652:80"
+
+networks:
+  syapse:
+    external: true
+# vim: ts=2 sw=2 sts=2 et

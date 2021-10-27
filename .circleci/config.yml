@@ -1,0 +1,141 @@
+version: 2
+
+jobs:
+  run-tests:
+    environment:
+      BUILD_TARGET: test
+    docker:
+      - image: ${DOCKER_BUILD_IMAGE}
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Start the docker-compose stack
+          command: |
+            cp .circleci/docker-compose.override.yml .
+            yes | bin/setup || true
+      - run:
+          name: Run tests
+          command: |
+            . init
+            docker-compose run --rm \
+              -e CC_TEST_REPORTER_ID \
+              -e GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) \
+              -e GIT_COMMIT_SHA=$(git log -1 --pretty=format:'%H') \
+              -e GIT_COMMITTED_AT=$(git log -1 --pretty=format:%ct) \
+              -e CIRCLE_BRANCH \
+              -e CIRCLE_SHA1 \
+              sayan-service bin/autoci
+  build-prod:
+    environment:
+      BUILD_TARGET: prod
+    docker:
+      - image: ${DOCKER_BUILD_IMAGE}
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Build prod image
+          command: build --target=${BUILD_TARGET}
+      - run:
+          name: Run Fossa analyze
+          command: run_fossa2      
+      - run:
+          name: Push image
+          command: push
+  helm-build:
+    docker:
+      - image: ${DOCKER_HELM_IMAGE}
+        environment:
+          IMAGE_TAG_PATH: "syapse-service.image.tag"
+    steps:
+      - checkout
+      - run:
+          name: Helm lint
+          command: helm-lint
+      - run:
+          name: Helm release
+          command: helm-release
+  release-notes:
+    docker:
+      - image: ${DOCKER_GITHUB_RELEASE_IMAGE}
+    steps:
+      - checkout
+      - run:
+          name: Publish release notes
+          command: create-github-release
+  deploy-dev:
+    docker:
+      - image: ${DOCKER_HELM_IMAGE}
+        environment:
+          IMAGE_TAG_PATH: "syapse-service.image.tag"
+    steps:
+      - checkout
+      - run:
+          name: Helm deploy dev
+          command: helm-deploy dev
+  deploy-sqa:
+    docker:
+      - image: ${DOCKER_HELM_IMAGE}
+        environment:
+          IMAGE_TAG_PATH: "syapse-service.image.tag"
+    steps:
+      - checkout
+      - run:
+          name: Helm deploy sqa
+          command: helm-deploy sqa
+
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - run-tests:
+          context: aws-ecr-prod
+          filters:
+            tags:
+              only: /.*/
+      - build-prod:
+          context: aws-ecr-prod
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - run-tests
+      - helm-build:
+          context: aws-ecr-prod
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build-prod
+      - release-notes:
+          context: aws-ecr-prod
+          requires:
+            - helm-build
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+      - deploy-dev:
+          context: aws-ecr-prod
+          filters:
+            branches:
+              only:
+                - master
+            tags:
+              only: /.*/
+          requires:
+            - helm-build
+      - deploy-sqa:
+          context: aws-ecr-prod
+          requires:
+            - helm-build
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/

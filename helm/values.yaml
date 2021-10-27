@@ -1,0 +1,28 @@
+global:
+  team: cloudeng
+
+image:
+  tag: latest
+app:
+  replicaCount: 2
+
+database:
+  name: postgres
+config:
+  PDB_TRACE_DISPATCH: "false"
+jobs:
+  migrate:
+    command: ["flask"]
+    args: ["db", "upgrade"]
+    annotations:
+      helm.sh/hook: post-install,post-upgrade,post-rollback
+      helm.sh/hook-weight: "-5"
+      helm.sh/hook-delete-policy: hook-succeeded,before-hook-creation
+    resources:
+      requests:
+        cpu: 5m
+        memory: 250Mi
+resources:
+  requests:
+    cpu: 5m
+    memory: 250Mi
